@@ -7,18 +7,19 @@ const pool = new Pool({
   database: 'bootcampx'
 });
 
-const cohort = process.argv[2];
-const limit = process.argv[3];
-
-pool.query(`
+const queryString = `
 SELECT DISTINCT teachers.name as teacher, cohorts.name as cohort
 FROM assistance_requests
 JOIN teachers ON teachers.id = teacher_id
 JOIN students ON students.id = student_id
 JOIN cohorts ON cohorts.id = cohort_id
-WHERE cohorts.name LIKE '%${cohort}%'
+WHERE cohorts.name LIKE $1
 ORDER BY teachers.name
-`)
+`
+const cohort = process.argv[2];
+const values = [`%${cohort}%`]
+
+pool.query(queryString, values)
 .then(res => {
   res.rows.forEach(user => {
     console.log(`${user.cohort}: ${user.teacher}`);
